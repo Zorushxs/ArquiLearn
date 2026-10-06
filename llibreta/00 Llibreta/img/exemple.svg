@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 150" width="560" height="150" font-family="Segoe UI, sans-serif" font-size="15">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1e1e1e"/></marker>
+  </defs>
+  <g fill="none" stroke="#1e1e1e" stroke-width="2">
+    <rect x="15" y="45" width="140" height="60" rx="10" fill="#d0ebff"/>
+    <rect x="210" y="45" width="140" height="60" rx="10" fill="#fff3bf"/>
+    <rect x="405" y="45" width="140" height="60" rx="10" fill="#d3f9d8"/>
+    <path d="M157 75h50M352 75h50" marker-end="url(#a)"/>
+  </g>
+  <g fill="#1e1e1e" text-anchor="middle">
+    <text x="85" y="80">Pàgina .md</text>
+    <text x="280" y="70">marked +</text>
+    <text x="280" y="90">highlight.js</text>
+    <text x="475" y="80">HTML net</text>
+    <text x="280" y="135" font-size="13" fill="#555">Exemple d'SVG: un d'Excalidraw es mostra igual</text>
+  </g>
+</svg>

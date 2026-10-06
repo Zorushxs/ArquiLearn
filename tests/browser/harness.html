@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<title>Proves ArquiLearn</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
+  #log { overflow: auto; padding: 10px; white-space: pre-wrap; font-family: monospace; }
+  iframe { width: 100%; height: 100%; border: 0; border-left: 1px solid #ccc; }
+  .fail { color: #b3352f; font-weight: bold; }
+</style>
+</head>
+<body>
+<div id="log"></div>
+<iframe id="app"></iframe>
+<script src="opfs.js"></script>
+<script>
+// L'app sencera dins d'un iframe. Primer en mode web (només lectura) i després amb una «carpeta» que és
+// l'OPFS del navegador (opfs.js), amb una còpia de la llibreta.
+// En acabar, envia el resultat al servidor (POST), que el desa a tests/browser/result.txt.
+const lines = [];
+let fails = 0;
+function ok(cond, msg) {
+  if (!cond) fails++;
+  lines.push((cond ? 'ok   ' : 'FAIL ') + msg);
+  const div = document.createElement('div');
+  div.textContent = (cond ? 'ok   ' : 'FAIL ') + msg;
+  if (!cond) div.className = 'fail';
+  document.getElementById('log').append(div);
+}
+const frame = document.getElementById('app');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let win, doc;
+
+// Espera fins que cond() és certa (o es cansa).
+async function until(cond, ms = 4000) {
+  for (let t = 0; t < ms; t += 50) {
+    try { if (cond()) return true; } catch {}
+    await sleep(50);
+  }
+  return false;
+}
+async function load(hash) {
+  frame.src = '/index.html' + hash;
+  await new Promise(r => { frame.onload = r; });
+  win = frame.contentWindow;
+  doc = frame.contentDocument;
+  win.onerror = (msg) => ok(false, 'error de JS: ' + msg);
+  win.addEventListener('unhandledrejection', e => ok(false, 'promesa sense catch: ' + (e.reason && e.reason.message)));
+}
+async function go(hash) {
+  win.location.hash = hash;
+  await sleep(100);
+}
+const $ = sel => doc.querySelector(sel);
+const $$ = sel => [...doc.querySelectorAll(sel)];
+
+async function webMode() {
+  // Esborra la carpeta recordada d'una altra execució.
+  await new Promise(r => { const q = indexedDB.deleteDatabase('arquilearn'); q.onsuccess = q.onerror = q.onblocked = r; });
+  await load('#/');
+  ok(await until(() => $('.doc h1')), 'inici: es pinta inici.md');
+  ok($('.doc h1').textContent === 'ArquiLearn', 'inici: títol');
+  ok($('#mode').textContent.includes('Només lectura'), 'capçalera: només lectura');
+  const topics = $$('.tree-topic summary').map(s => s.textContent);
+  ok(topics[0] === 'Llibreta', 'arbre: «00 Llibreta» es veu com «Llibreta» i va primer');
+  ok(topics.includes('De comportament'), 'arbre: subtemes');
+  const index = await (await fetch('/llibreta/index.json')).json();
+  ok($$('.tree-page').length === index.pages.length - 1, 'arbre: totes les pàgines menys inici.md');
+  const builder = $$('.tree-topic summary').find(s => s.textContent === 'Creacionals');
+  ok(builder && builder.closest('details').textContent.includes('Builder'), 'arbre: cada pàgina dins del seu subtema');
+  ok(!$('.side-new'), 'sense carpeta no hi ha «Pàgina nova»');
+  ok($('.tree-home').classList.contains('on'), 'arbre: Inici encès');
+  const link = $('.doc a[href*="Format"]');
+  ok(link && link.getAttribute('href') === '#/p/00%20Llibreta/Format%20i%20codi.md', 'enllaç a un .md → ruta de l\'app');
+
+  await go('#/p/00%20Llibreta/Format%20i%20codi.md');
+  ok(await until(() => $('.doc figure.code')), 'pàgina: hi ha blocs de codi');
+  ok($('.doc figure.code figcaption').textContent === 'java', 'codi: nom del llenguatge');
+  ok($$('.doc .hljs-keyword').length > 3, 'codi: pintat (paraules clau)');
+  ok($('.doc table') && $$('.doc tbody tr').length === 3, 'taula');
+  ok($('.doc blockquote'), 'cita');
+  ok($('.crumbs').textContent.includes('Llibreta'), 'molles de pa amb el tema');
+  ok($('.tree-page.on') && $('.tree-page.on').textContent === 'Format i codi', 'arbre: pàgina oberta encesa');
+  ok(doc.title === 'Format i codi · ArquiLearn', 'títol de la pestanya');
+  ok(!$('.page-head .btn'), 'sense carpeta no hi ha «Editar»');
+
+  await go('#/p/00%20Llibreta/Imatges%20i%20Excalidraw.md');
+  ok(await until(() => $('.doc img') && $('.doc img').complete && $('.doc img').naturalWidth > 0), 'imatge relativa: es carrega');
+  ok($('.doc img').getAttribute('src') === 'llibreta/00%20Llibreta/img/exemple.svg', 'imatge: ruta dins de llibreta/');
+  ok($('.doc img').classList.contains('svg'), 'imatge SVG marcada (fons clar en fosc)');
+  const external = $('.doc a[href^="https://excalidraw"]');
+  ok(external && external.target === '_blank', 'enllaç extern en una pestanya nova');
+
+  await go('#/p/02%20Patrons%20de%20disseny/De%20comportament/Strategy.md');
+  ok(await until(() => $('.doc img') && $('.doc img').naturalWidth > 0), 'Strategy: el diagrama es carrega');
+  ok($('.crumbs').textContent.includes('Patrons de disseny') && $('.crumbs').textContent.includes('De comportament'),
+    'molles de pa amb tema i subtema');
+  const solid = $('.doc a[href*="SOLID"]');
+  ok(solid && solid.getAttribute('href') === '#/p/01%20Fonaments/01%20Principis%20SOLID.md', 'enllaç amb ../../ resolt');
+  ok($$('.doc details').length === 2, 'desplegables de repàs');
+
+  await go('#/p/99%20Proves/Casos%20l%C3%ADmit.md');
+  ok(await until(() => $('.doc h1') && $('.doc h1').textContent === 'Casos límit'), 'pàgina amb accent a la ruta');
+  win.scrollTo(0, doc.body.scrollHeight); // les imatges es carreguen quan arribes a veure-les
+  ok(await until(() => $('.doc .img-missing') &&$('.doc .img-missing').textContent.includes('99 Proves/img/no-existeix.png')),
+    'imatge que no hi és: avís amb la ruta');
+  ok($('.doc kbd') && $('.doc details') && $('.doc mark'), 'HTML permès: kbd, details, mark');
+  ok($$('.doc input[type="checkbox"]').length === 2, 'llista de tasques');
+  ok($$('.doc figure.code').length >= 9, 'tots els blocs de codi');
+  ok(!$$('.doc figure.code')[7].querySelector('figcaption'), 'bloc sense llenguatge: sense nom a dalt');
+  ok(doc.documentElement.scrollWidth <= win.innerWidth, 'la línia llarga i la taula ampla no fan scroll a tota la pàgina');
+
+  await go('#/p/No%20existeix.md');
+  ok(await until(() => $('.doc h1') && $('.doc h1').textContent.includes('No s\'ha trobat')), 'pàgina que no existeix');
+
+  await go('#/e/00%20Llibreta/Format%20i%20codi.md');
+  ok(await until(() => win.location.hash.startsWith('#/p/')), 'editar sense carpeta → torna a la pàgina');
+
+  // Seguretat: un script dins del markdown no s'executa.
+  const target = $('.doc');
+  await win.eval('Render').into(target, '<img src=x onerror="window.__xss=1"><script>window.__xss=2<\/script>\n\n[a](javascript:alert(1))', 'a.md');
+  await sleep(200);
+  ok(!win.__xss, 'HTML perillós: no s\'executa');
+  ok(!$('.doc a[href^="javascript"]'), 'enllaç javascript: tret');
+}
+
+async function folderMode() {
+  const root = await opfsBook();
+  win.showDirectoryPicker = async () => root;
+  $('#mode [data-act="pick"]').click();
+  ok(await until(() => $('#mode').textContent.includes('llibreta')), 'carpeta oberta (ha entrat sola a llibreta/)');
+  ok(await until(() => $('.side-new')), 'amb carpeta hi ha «Pàgina nova»');
+
+  // Pàgina nova en un tema nou amb subtema.
+  await go('#/nova');
+  ok(await until(() => $('.new-form')), 'formulari de pàgina nova');
+  const options = $$('#topicList option').map(o => o.value);
+  ok(options.includes('00 Llibreta') && options.includes('02 Patrons de disseny/De comportament'), 'temes que ja hi ha, per triar');
+  $('.new-form [name=topic]').value = ' Patrons / Comportament ';
+  $('.new-form [name=title]').value = 'Strategy';
+  $('.new-form button.primary').click();
+  ok(await until(() => win.location.hash === '#/e/Patrons/Comportament/Strategy.md'), 'crea la pàgina i obre l\'editor');
+  ok(await opfsText('Patrons/Comportament/Strategy.md') === '# Strategy\n\n', 'fitxer creat amb el títol');
+  ok(JSON.parse(await opfsText('index.json')).pages.some(p => p.path === 'Patrons/Comportament/Strategy.md'), 'index.json actualitzat');
+  ok(await until(() => $$('.tree-topic summary').map(s => s.textContent).includes('Comportament')), 'arbre: subtema nou');
+
+  // Repetida → error.
+  await go('#/nova/Patrons%2FComportament');
+  await until(() => $('.new-form'));
+  ok($('.new-form [name=topic]').value === 'Patrons/Comportament', 'nova amb el tema ja posat');
+  $('.new-form [name=title]').value = 'Strategy';
+  $('.new-form button.primary').click();
+  ok(await until(() => !$('.new-error').hidden), 'pàgina repetida → error');
+
+  // Editar: botons de format, vista prèvia i desar.
+  await go('#/e/Patrons/Comportament/Strategy.md');
+  ok(await until(() => $('.ed-text') && $('.ed-text').value === '# Strategy\n\n'), 'editor: text de la pàgina');
+  ok($('.ed-save').disabled, 'sense canvis, «Desar» apagat');
+  const area = $('.ed-text');
+  ok(area.selectionStart === area.value.length, 'pàgina nova: el cursor al final');
+  area.focus();
+  area.setSelectionRange(area.value.length, area.value.length);
+  $('[data-tool="block"]').click();
+  ok(area.value === '# Strategy\n\n```java\ncodi\n```', 'botó de bloc de codi → ' + JSON.stringify(area.value));
+  ok(area.value.slice(area.selectionStart, area.selectionEnd) === 'codi', 'deixa seleccionat el text d\'exemple');
+  doc.execCommand('insertText', false, 'interface Strategy {}');
+  ok(await until(() => $('.ed-preview .hljs-keyword')), 'vista prèvia amb el codi pintat');
+  ok(!$('.ed-save').disabled, 'amb canvis, «Desar» encès');
+  area.dispatchEvent(new win.KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }));
+  ok(await until(() => $('.ed-save').disabled), 'Ctrl+S desa');
+  ok((await opfsText('Patrons/Comportament/Strategy.md')).includes('interface Strategy {}'), 'fitxer desat al disc');
+
+  // Imatge enganxada: es desa a img/ i s'hi escriu l'enllaç.
+  const svg = await (await fetch('/llibreta/00%20Llibreta/img/exemple.svg')).blob();
+  const file = new File([svg], 'Diagrama de classes.svg', { type: 'image/svg+xml' });
+  const data = new DataTransfer();
+  data.items.add(file);
+  area.setSelectionRange(area.value.length, area.value.length); // fora del bloc de codi
+  area.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+  ok(await until(() => area.value.includes('![Diagrama-de-classes](img/Diagrama-de-classes.svg)')), 'imatge enganxada → enllaç');
+  ok(await opfsHas('Patrons/Comportament/img/Diagrama-de-classes.svg'), 'imatge desada a img/');
+  ok(await until(() => $('.ed-preview img') && $('.ed-preview img').src.startsWith('blob:')
+    && $('.ed-preview img').naturalWidth > 0), 'vista prèvia: la imatge es veu (llegida del disc)');
+  area.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+  ok(await until(() => area.value.includes('img/Diagrama-de-classes-2.svg')), 'mateix nom → -2');
+
+  // Sortir amb canvis: pregunta; si dius que no, et quedes.
+  win.confirm = () => false;
+  await go('#/');
+  ok(win.location.hash === '#/e/Patrons/Comportament/Strategy.md' && $('.ed-text'), 'canvis sense desar: es queda a l\'editor');
+  win.confirm = () => true;
+  $('.ed-save').click();
+  await until(() => $('.ed-save').disabled);
+
+  // Pàgina vista amb carpeta: botó Editar.
+  await go('#/p/Patrons/Comportament/Strategy.md');
+  ok(await until(() => $('.page-head .btn')), 'amb carpeta, la pàgina té «Editar»');
+  ok(await until(() => $('.doc img') && $('.doc img').naturalWidth > 0), 'pàgina: imatge del disc');
+
+  // Pàgina que ja té text: el cursor a dalt.
+  await go('#/e/00%20Llibreta/Format%20i%20codi.md');
+  ok(await until(() => $('.ed-text') && $('.ed-text').value.length > 100), 'editor amb una pàgina que té text');
+  ok($('.ed-text').selectionStart === 0, 'pàgina amb text: el cursor a dalt');
+
+  // Esborrar.
+  await go('#/e/Patrons/Comportament/Strategy.md');
+  await until(() => $('.ed-text'));
+  $('[data-act="remove"]').click();
+  ok(await until(() => win.location.hash === '#/'), 'esborrar → inici');
+  ok(!(await opfsHas('Patrons/Comportament/Strategy.md')), 'fitxer esborrat');
+  ok(!JSON.parse(await opfsText('index.json')).pages.some(p => p.path.startsWith('Patrons')), 'index.json sense la pàgina');
+
+  // Tancar la carpeta → només lectura.
+  $('#mode [data-act="close"]').click();
+  ok(await until(() => $('#mode').textContent.includes('Només lectura')), 'tancar carpeta → només lectura');
+}
+
+(async () => {
+  try {
+    await webMode();
+    await folderMode();
+  } catch (e) {
+    ok(false, 'excepció: ' + e.stack);
+  }
+  lines.push(fails ? `${fails} FALLADES` : 'TOT OK');
+  document.getElementById('log').append(lines.at(-1));
+  await fetch('/result', { method: 'POST', body: lines.join('\n') + '\n' });
+})();
+</script>
+</body>
+</html>

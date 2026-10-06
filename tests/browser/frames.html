@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Captures</title>
+<style>body { margin: 0; display: flex; background: #888; } iframe { border: 0; flex: none; }</style>
+<script src="opfs.js"></script>
+<script>
+  // Captures: /tests/browser/frames.html?w=390&h=844&theme=dark&r=#/&r=#/p/... → un iframe de mida exacta per ruta.
+  // folder=1: obre una còpia de la llibreta (OPFS) com a carpeta abans d'anar a la ruta (per veure l'editor).
+  // Amb Chrome: chrome --headless=new --screenshot=out.png --window-size=780,844 --virtual-time-budget=8000 <url>
+  // La imatge /slow del final endarrereix la captura perquè l'app tingui temps d'arrencar.
+  const q = new URLSearchParams(location.search), w = q.get('w') || 390, h = q.get('h') || 844;
+  const folder = q.get('folder');
+  try { localStorage.setItem('arqui:tema', q.get('theme') || 'light'); } catch {}
+  q.getAll('r').forEach(r => {
+    const f = document.createElement('iframe');
+    f.width = w;
+    f.height = h;
+    f.src = '../../index.html' + (folder ? '#/' : r);
+    f.dataset.route = r;
+    document.write(f.outerHTML);
+  });
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  if (folder) window.addEventListener('DOMContentLoaded', async () => {
+    const root = await opfsBook();
+    await sleep(800);
+    for (const frame of document.querySelectorAll('iframe')) {
+      frame.contentWindow.showDirectoryPicker = async () => root;
+      frame.contentDocument.querySelector('#mode [data-act="pick"]').click();
+      await sleep(400);
+      frame.contentWindow.location.hash = frame.dataset.route;
+    }
+  });
+</script>
+<img src="/slow?ms=5000" alt="" style="position:absolute;width:1px;height:1px">

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" font-family="Segoe UI, sans-serif" font-size="14">
+  <defs>
+    <marker id="open" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto">
+      <path d="M1 1L11 6L1 11z" fill="#fff" stroke="#1e1e1e" stroke-width="1.4"/>
+    </marker>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+    </marker>
+  </defs>
+  <g fill="none" stroke="#1e1e1e" stroke-width="2">
+    <!-- client -->
+    <rect x="20" y="40" width="150" height="70" rx="8" fill="#d0ebff"/>
+    <path d="M20 72h150"/>
+    <!-- fàbrica abstracta -->
+    <rect x="250" y="30" width="200" height="90" rx="8" fill="#fff3bf"/>
+    <path d="M250 74h200"/>
+    <!-- fàbriques concretes -->
+    <rect x="170" y="200" width="160" height="80" rx="8" fill="#ffe8cc"/>
+    <path d="M170 232h160"/>
+    <rect x="370" y="200" width="160" height="80" rx="8" fill="#ffe8cc"/>
+    <path d="M370 232h160"/>
+    <!-- productes -->
+    <rect x="570" y="30" width="135" height="50" rx="8" fill="#d3f9d8"/>
+    <rect x="570" y="100" width="135" height="50" rx="8" fill="#d3f9d8"/>
+    <path d="M170 75h78" marker-end="url(#arrow)"/>
+    <path d="M250 200v-40h200v40" stroke-dasharray="6 5"/>
+    <path d="M350 160v-38" stroke-dasharray="6 5" marker-end="url(#open)"/>
+    <path d="M530 240h80V152" stroke-dasharray="3 4" marker-end="url(#arrow)"/>
+  </g>
+  <g fill="#1e1e1e" text-anchor="middle">
+    <text x="95" y="62" font-weight="700">ReportService</text>
+    <text x="95" y="96" font-size="13">publish(report)</text>
+    <text x="350" y="50" font-size="12" fill="#555">«interface»</text>
+    <text x="350" y="67" font-weight="700">CloudFactory</text>
+    <text x="350" y="94" font-size="13">storage(): FileStorage</text>
+    <text x="350" y="112" font-size="13">queue(): MessageQueue</text>
+    <text x="250" y="222" font-weight="700">AwsFactory</text>
+    <text x="250" y="253" font-size="12">→ S3Storage</text>
+    <text x="250" y="270" font-size="12">→ SqsQueue</text>
+    <text x="450" y="222" font-weight="700">AzureFactory</text>
+    <text x="450" y="253" font-size="12">→ BlobStorage</text>
+    <text x="450" y="270" font-size="12">→ ServiceBusQueue</text>
+    <text x="637" y="52" font-size="11" fill="#555">«interface»</text>
+    <text x="637" y="69" font-weight="700">FileStorage</text>
+    <text x="637" y="122" font-size="11" fill="#555">«interface»</text>
+    <text x="637" y="139" font-weight="700">MessageQueue</text>
+    <text x="209" y="66" font-size="12" fill="#555">fa servir</text>
+    <text x="400" y="152" font-size="12" fill="#555">implementen</text>
+    <text x="640" y="215" font-size="12" fill="#555">creen</text>
+    <text x="360" y="330" font-size="13" fill="#555">Cada fàbrica concreta només crea peces de la seva família.</text>
+  </g>
+</svg>

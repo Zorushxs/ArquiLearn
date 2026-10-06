@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "path": "00 Llibreta/Format i codi.md",
+      "title": "Format i codi"
+    },
+    {
+      "path": "00 Llibreta/Imatges i Excalidraw.md",
+      "title": "Imatges i Excalidraw"
+    },
+    {
+      "path": "01 Fonaments/01 Principis SOLID.md",
+      "title": "Principis SOLID"
+    },
+    {
+      "path": "02 Patrons de disseny/01 Què és un patró.md",
+      "title": "Què és un patró de disseny"
+    },
+    {
+      "path": "02 Patrons de disseny/Creacionals/Abstract Factory.md",
+      "title": "Abstract Factory"
+    },
+    {
+      "path": "02 Patrons de disseny/Creacionals/Builder.md",
+      "title": "Builder"
+    },
+    {
+      "path": "02 Patrons de disseny/De comportament/Strategy.md",
+      "title": "Strategy"
+    },
+    {
+      "path": "99 Proves/Casos límit.md",
+      "title": "Casos límit"
+    },
+    {
+      "path": "inici.md",
+      "title": "ArquiLearn"
+    }
+  ]
+}

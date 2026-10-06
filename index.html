@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Llibreta d'aprenentatge: programació, patrons de disseny i arquitectura.">
+<title>ArquiLearn</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="css/styles.css?v=3">
+<script>
+  // Tema abans de pintar, perquè no parpellegi (la mateixa clau que Prefs.theme, a js/prefs.js).
+  try { const th = localStorage.getItem('arqui:tema'); if (th) document.documentElement.dataset.theme = th; } catch {}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/"><span class="brand-k" aria-hidden="true">A</span>ArquiLearn</a>
+  <div class="top-tools">
+    <div id="mode" class="mode"></div>
+    <button type="button" id="themeBtn" class="icon-btn" title="Tema clar o fosc" aria-label="Tema clar o fosc">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside id="side" class="side" aria-label="Temari"></aside>
+  <main id="view" class="main"></main>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="vendor/marked.umd.js?v=3"></script>
+<script src="vendor/purify.min.js?v=3"></script>
+<script src="vendor/highlight.min.js?v=3"></script>
+<script src="js/prefs.js?v=3"></script>
+<script src="js/util.js?v=3"></script>
+<script src="js/temari.js?v=3"></script>
+<script src="js/format.js?v=3"></script>
+<script src="js/carpeta.js?v=3"></script>
+<script src="js/render.js?v=3"></script>
+<script src="js/arbre.js?v=3"></script>
+<script src="js/pagina.js?v=3"></script>
+<script src="js/editor.js?v=3"></script>
+<script src="js/nova.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+</body>
+</html>

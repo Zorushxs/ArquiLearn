@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" width="640" height="300" font-family="Segoe UI, sans-serif" font-size="14">
+  <defs>
+    <marker id="open" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto">
+      <path d="M1 1L11 6L1 11z" fill="#fff" stroke="#1e1e1e" stroke-width="1.4"/>
+    </marker>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+    </marker>
+  </defs>
+  <g fill="none" stroke="#1e1e1e" stroke-width="2">
+    <rect x="20" y="30" width="170" height="80" rx="8" fill="#d0ebff"/>
+    <path d="M20 62h170"/>
+    <rect x="300" y="30" width="250" height="80" rx="8" fill="#fff3bf"/>
+    <path d="M300 74h250"/>
+    <rect x="230" y="200" width="170" height="70" rx="8" fill="#d3f9d8"/>
+    <path d="M230 232h170"/>
+    <rect x="450" y="200" width="170" height="70" rx="8" fill="#d3f9d8"/>
+    <path d="M450 232h170"/>
+    <path d="M190 70h108" marker-end="url(#arrow)"/>
+    <path d="M315 200V150h220v50" stroke-dasharray="6 5"/>
+    <path d="M425 150v-38" stroke-dasharray="6 5" marker-end="url(#open)"/>
+  </g>
+  <g fill="#1e1e1e" text-anchor="middle">
+    <text x="105" y="52" font-weight="700">Checkout</text>
+    <text x="105" y="90" font-size="13">total(price)</text>
+    <text x="425" y="48" font-size="12" fill="#555">«interface»</text>
+    <text x="425" y="66" font-weight="700">DiscountStrategy</text>
+    <text x="425" y="96" font-size="13">apply(price): BigDecimal</text>
+    <text x="315" y="222" font-weight="700">BlackFriday</text>
+    <text x="315" y="256" font-size="13">apply(price)</text>
+    <text x="535" y="222" font-weight="700">NoDiscount</text>
+    <text x="535" y="256" font-size="13">apply(price)</text>
+    <text x="244" y="62" font-size="12" fill="#555">fa servir</text>
+    <text x="470" y="140" font-size="12" fill="#555">implementen</text>
+  </g>
+</svg>
