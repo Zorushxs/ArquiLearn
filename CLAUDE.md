@@ -14,17 +14,18 @@ Llibreta d'aprenentatge (programació, patrons de disseny, arquitectura) feta co
 ## Tecnologia i convencions (les mateixes que KanjiApp)
 
 - Mòbil primer, tema clar i fosc amb variables CSS. Interfície només en català (no hi ha i18n). Comentaris del codi en català.
-- **Cada canvi d'un CSS o JS apuja `?v=N`** a totes les referències d'[index.html](index.html) amb `node tools/versio.js` (ara és `?v=3`). Si no, GitHub Pages serveix els fitxers vells. El contingut (`llibreta/`) es llegeix sense memòria cau i no ho necessita.
+- **Cada canvi d'un CSS o JS apuja `?v=N`** a totes les referències d'[index.html](index.html) amb `node tools/versio.js` (ara és `?v=5`). Si no, GitHub Pages serveix els fitxers vells. El contingut (`llibreta/`) es llegeix sense memòria cau i no ho necessita.
 - Són scripts clàssics, cadascun amb un IIFE que exposa un objecte global, en aquest ordre (el d'index.html): `Prefs`, `U` (util), `Temari`, `Format`, `Carpeta`, `Render`, `Arbre`, `Pagina`, `Editor`, `Nova`, `App`. Els `const` globals no són a `window` (des d'un altre frame: `win.eval('Render')`).
 - **On va cada cosa**:
   - [js/temari.js](js/temari.js) `Temari`: regles sense DOM (rutes, noms, títols, arbre). Es pot provar amb node.
   - [js/format.js](js/format.js) `Format`: els botons de format de l'editor, sense DOM. Cada funció torna `{ from, to, insert, selStart, selEnd }`.
   - [js/carpeta.js](js/carpeta.js) `Carpeta`: **l'única capa que sap d'on surten les dades** (web amb `fetch` o carpeta del disc). Les pantalles només li demanen `read`, `write`, `writeFile`, `remove`, `exists`, `fileUrl` i `pages`.
   - [js/render.js](js/render.js) `Render.into(el, markdown, ruta)`: Markdown → HTML net, amb imatges i enllaços relatius resolts des de la carpeta de la pàgina.
+  - [js/arbre.js](js/arbre.js) `Arbre`: el lateral. Dos modes que tria l'usuari (es desa a `Prefs`): **tot obert** (per defecte) i **acordió** (només s'obre el tema de la pàgina on ets). Tots dos amb cercador (`Temari.filter`, sense majúscules ni accents); en escriure només es repinta l'arbre, perquè el camp no perdi el focus.
   - `U`: només coses generals (DOM, `U.html`, clics, icones, avisos).
 - **HTML amb `U.html`**: ``html`<p>${text}</p>` `` escapa sol. `U.raw(text)` per a l'HTML que ja és segur. Per a les condicions, `cond ? html`…` : ''`.
 - **Clics amb `U.onActions(root, { nom(el, e) {…} })`** i `data-act="nom"` als botons.
-- **Pantalles**: `{ nav, render(root, arg), leave() }`. `leave` (opcional) diu si es pot sortir; l'editor pregunta si hi ha canvis sense desar.
+- **Pantalles**: `{ nav, render(root, arg), shown(root), leave() }`. `render` (pot ser `async`) pinta en un `root` que encara no es veu; l'app el posa de cop quan ha acabat, perquè no hi hagi parpelleigs. Per això el focus va a `shown` (opcional), que es crida quan la pantalla ja es veu. `leave` (opcional) diu si es pot sortir; l'editor pregunta si hi ha canvis sense desar.
 - Rutes amb hash: `#/` (inici, és `llibreta/inici.md`), `#/p/<ruta.md>`, `#/e/<ruta.md>` (editar), `#/nova[/<tema>]`. Cada tros de la ruta va codificat amb `Temari.encodePath`.
 - **Estil**: una instrucció per línia, línies de menys de ~130 caràcters, noms que diguin què són. Classes CSS específiques (no genèriques), per evitar col·lisions.
 - Commits: en anglès, `Add: …` / `Fix: …`, amb una llista de punts opcional.

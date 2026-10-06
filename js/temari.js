@@ -87,6 +87,26 @@ const Temari = (() => {
     return [...all].sort((a, b) => a.localeCompare(b, 'ca', { numeric: true }));
   }
 
+  // Per cercar sense fer cas de majúscules ni accents: «Què és» → «que es».
+  const fold = text => String(text).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  // Les pàgines que contenen totes les paraules de la cerca, al títol o al nom dels seus temes
+  // («patrons build» troba Builder). Sense cerca, totes.
+  function filter(pages, query) {
+    const words = fold(query).split(/\s+/).filter(Boolean);
+    if (!words.length) return pages;
+    return pages.filter(page => {
+      const text = fold(page.title + ' ' + parts(dirname(page.path)).map(displayName).join(' '));
+      return words.every(word => text.includes(word));
+    });
+  }
+
+  // Quantes pàgines té un tema, comptant-hi els subtemes.
+  const count = node => node.pages.length + node.topics.reduce((sum, topic) => sum + count(topic), 0);
+
+  // Si la pàgina és dins del tema (o d'un dels seus subtemes).
+  const inside = (topic, path) => path.startsWith(topic.path + '/');
+
   // Els temes de la ruta d'una pàgina, per a les molles de pa: [{ name, path }].
   function crumbs(path) {
     const dir = parts(dirname(path));
@@ -95,6 +115,6 @@ const Temari = (() => {
 
   return {
     HOME, parts, dirname, basename, resolve, isRelative, encodePath,
-    displayName, cleanName, cleanTopic, fileName, titleOf, tree, topics, crumbs,
+    displayName, cleanName, cleanTopic, fileName, titleOf, tree, topics, crumbs, filter, count, inside,
   };
 })();

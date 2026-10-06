@@ -198,12 +198,17 @@ const Editor = (() => {
     }
     state.text.value = state.saved;
     bind(root);
-    // Pàgina nova (només el títol): el cursor al final, per començar a escriure. Si no, a dalt.
+    await Render.into(state.preview, state.saved, path); // la vista prèvia ja pintada quan es mostra l'editor
+  }
+
+  // Quan l'editor ja es veu (el focus no es pot posar abans).
+  // Pàgina nova (només el títol): el cursor al final, per començar a escriure. Si no, a dalt.
+  function shown() {
+    if (!state.text) return;
     const cursor = /^# [^\n]*\s*$/.test(state.saved) ? state.saved.length : 0;
     state.text.focus({ preventScroll: true }); // que la barra de format no surti de la pantalla
     state.text.setSelectionRange(cursor, cursor);
     state.text.scrollTop = 0;
-    Render.into(state.preview, state.saved, path);
   }
 
   // L'app ho pregunta abans de canviar de pantalla.
@@ -211,5 +216,5 @@ const Editor = (() => {
     return !dirty() || confirm('Tens canvis sense desar. Vols sortir igualment?');
   }
 
-  return { nav: 'edit', render, leave, dirty };
+  return { nav: 'edit', render, shown, leave, dirty };
 })();

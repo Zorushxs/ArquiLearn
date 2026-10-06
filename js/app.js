@@ -16,32 +16,44 @@ const App = (() => {
     return { name: ROUTES[name] ? name : '', arg };
   }
 
-  function route() {
+  // La pantalla nova es pinta fora de la vista i es posa de cop quan és llesta: la vella es veu fins aleshores
+  // i no hi ha cap moment en blanc. Si mentrestant has anat a una altra pàgina, aquesta es descarta.
+  let routeTurn = 0;
+  async function route() {
     // Si la pantalla no deixa sortir, es torna a posar l'adreça d'abans (replaceState no torna a cridar route).
     if (current && current.leave && lastHash !== null && location.hash !== lastHash && !current.leave()) {
       history.replaceState(history.state, '', lastHash);
       return;
     }
+    const turn = ++routeTurn;
     const { name, arg } = parse();
-    current = ROUTES[name];
+    const screen = ROUTES[name];
+    current = screen;
     lastHash = location.hash;
     currentPath = name === 'p' || name === 'e' ? arg : name === '' ? Temari.HOME : '';
-    document.body.dataset.screen = current.nav;
-    document.title = 'ArquiLearn';
+    document.title = 'ArquiLearn'; // la pàgina hi posa el seu títol en pintar-se
     const root = document.createElement('div');
     root.className = 'screen';
+    try {
+      await screen.render(root, screen === Inici ? Temari.HOME : arg);
+    } catch (e) {
+      console.error(e);
+    }
+    if (turn !== routeTurn || location.hash !== lastHash) return; // has canviat de pàgina o la pantalla ha redirigit
+    document.body.dataset.screen = screen.nav;
     $('#view').replaceChildren(root);
     renderSide();
     scrollTo(0, 0);
-    current.render(root, current === Inici ? Temari.HOME : arg);
+    if (screen.shown) screen.shown(root); // el que només es pot fer amb la pantalla visible (el focus)
   }
   window.addEventListener('hashchange', route);
   window.addEventListener('beforeunload', event => {
     if (current && current.dirty && current.dirty()) event.preventDefault();
   });
 
+  // El lateral no es torna a crear a cada pàgina: només canvia quina està encesa (vegeu Arbre.show).
   function renderSide() {
-    Arbre.render($('#side'), currentPath);
+    Arbre.show(currentPath);
   }
 
   // ---------- Tema ----------
@@ -83,6 +95,7 @@ const App = (() => {
       if (e.name !== 'AbortError') alert(`No s'ha pogut obrir la carpeta: ${e.message}`); // AbortError: has tancat el selector
     }
     renderMode();
+    Arbre.render($('#side')); // el + de «Pàgina nova» depèn de si hi ha carpeta
     lastHash = null; // torna a pintar la pantalla encara que l'adreça sigui la mateixa
     route();
   }
@@ -100,6 +113,7 @@ const App = (() => {
       console.error(e);
     }
     renderMode();
+    Arbre.render($('#side'));
     route();
   })();
 

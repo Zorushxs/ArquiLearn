@@ -24,7 +24,12 @@ const Nova = (() => {
       event.preventDefault();
       create(form).catch(e => showError(form, e.message));
     };
-    form.elements[topic ? 'title' : 'topic'].focus();
+  }
+
+  // Quan la pantalla ja es veu: el focus al primer camp que cal omplir.
+  function shown(root) {
+    const form = $('form', root);
+    if (form) form.elements[form.elements.topic.value ? 'title' : 'topic'].focus();
   }
 
   function showError(form, message) {
@@ -43,5 +48,5 @@ const Nova = (() => {
     location.hash = '#/e/' + Temari.encodePath(path);
   }
 
-  return { nav: 'new', render };
+  return { nav: 'new', render, shown };
 })();

@@ -11,6 +11,7 @@
   const q = new URLSearchParams(location.search), w = q.get('w') || 390, h = q.get('h') || 844;
   const folder = q.get('folder');
   try { localStorage.setItem('arqui:tema', q.get('theme') || 'light'); } catch {}
+  try { localStorage.setItem('arqui:lateral', q.get('side') || 'open'); } catch {} // side=accordion: lateral en acordió
   q.getAll('r').forEach(r => {
     const f = document.createElement('iframe');
     f.width = w;

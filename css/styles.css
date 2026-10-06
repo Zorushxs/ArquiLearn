@@ -24,7 +24,8 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; }
+/* Sempre hi ha lloc per a la barra de desplaçament: si no, en aparèixer, tot es mou cap a l'esquerra. */
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
 body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); }
 a { color: var(--accent); }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -95,20 +96,64 @@ svg.i {
 /* Al mòbil, el temari només surt a l'inici. */
 body[data-screen="home"] .side { display: block; }
 
-.side-new { width: 100%; margin-bottom: 12px; }
-.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
-.tree .tree { padding-left: 12px; margin-left: 6px; border-left: 1px solid var(--line); }
-.tree-home, .tree-page {
-  display: block; padding: 5px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; font-size: 15px;
+/* Capçalera del lateral: «Temari», els dos modes i el + de pàgina nova. */
+.side-head { display: flex; align-items: center; gap: 6px; padding: 0 4px 10px 10px; }
+.side-title { margin-right: auto; font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--mute); }
+.side-modes { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.side-modes button { display: inline-grid; place-items: center; width: 30px; height: 28px; padding: 0; border: 0; background: var(--panel); color: var(--mute); }
+.side-modes button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.side-modes svg.i, .side-add svg.i { width: 16px; height: 16px; }
+.side-add {
+  display: inline-grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--panel); color: var(--ink);
 }
-.tree-home { font-weight: 600; margin-bottom: 4px; }
-.tree-home:hover, .tree-page:hover { background: var(--hover); }
-.tree-home.on, .tree-page.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.tree-topic > summary {
-  padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .06em; color: var(--mute);
+.side-add:hover { border-color: var(--accent); color: var(--accent); }
+.side-search {
+  width: 100%; margin-bottom: 10px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 9px;
+  background: var(--panel); font-size: 14px;
 }
-.tree-topic > summary:hover { background: var(--hover); }
+.side .hint { padding: 0 10px; }
+
+/* Arbre, comú als dos modes */
+.tree { list-style: none; margin: 0; padding: 0; }
+.tree-home, .tree-page { display: block; padding: 4px 10px; color: var(--mute); text-decoration: none; font-size: 14.5px; }
+.tree-home { color: var(--ink); font-weight: 600; }
+.tree-home:hover, .tree-page:hover { color: var(--ink); }
+.tree-home.on, .tree-page.on { color: var(--accent); font-weight: 600; }
+.tree-name { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+
+/* A · Tot obert: sense desplegables; la pàgina oberta porta una ratlla de color a l'esquerra. */
+.tree-open .tree-topic { margin-top: 12px; }
+.tree-open .tree-name { padding: 2px 10px 3px; }
+.tree-open .tree .tree-topic { margin-top: 4px; }
+.tree-open .tree .tree-name { padding-left: 22px; font-size: 13px; color: var(--mute); }
+.tree-open .tree-page { padding-left: 22px; border-left: 2px solid transparent; }
+.tree-open .tree .tree .tree-page { padding-left: 34px; }
+.tree-open .tree .tree .tree .tree-name { padding-left: 34px; }
+.tree-open .tree .tree .tree .tree-page { padding-left: 46px; }
+.tree-open .tree-page.on { border-left-color: var(--accent); }
+
+/* B · Acordió: cada tema principal es plega; els subtemes són etiquetes petites. */
+.tree-accordion > .tree-topic { margin-top: 3px; }
+.tree-fold { border-radius: 10px; }
+.tree-fold[open] { background: var(--panel); }
+.tree-fold > summary {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; cursor: pointer; list-style: none;
+}
+.tree-fold > summary::-webkit-details-marker { display: none; }
+.tree-fold > summary:hover { background: var(--hover); }
+.tree-chev { width: 10px; color: var(--mute); transition: transform .15s; }
+.tree-fold[open] > summary .tree-chev { transform: rotate(90deg); }
+.tree-count {
+  margin-left: auto; padding: 0 8px; border-radius: 999px; background: var(--hover); color: var(--mute);
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.tree-fold > .tree { padding: 0 6px 8px; }
+.tree-accordion .tree-label { display: block; padding: 8px 10px 2px 28px; font-size: 12px; font-weight: 600; color: var(--mute); }
+.tree-accordion .tree-page { padding-left: 28px; border-radius: 8px; color: var(--ink); }
+.tree-accordion .tree-page:hover { background: var(--hover); }
+.tree-accordion .tree-page.on { background: var(--accent-soft); }
+@media (prefers-reduced-motion: reduce) { .tree-chev { transition: none; } }
 
 /* ---------- Pàgina ---------- */
 .page-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; margin-bottom: 8px; }

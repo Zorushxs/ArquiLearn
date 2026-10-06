@@ -56,6 +56,7 @@ const U = (() => {
     list: svg('<path d="M9.5 7h10M9.5 12h10M9.5 17h10"/><circle cx="5" cy="7" r=".6"/><circle cx="5" cy="12" r=".6"/><circle cx="5" cy="17" r=".6"/>'),
     quote: svg('<path d="M5 6v12"/><path d="M9.5 8h9.5M9.5 12h9.5M9.5 16h6"/>'),
     link: svg('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'),
+    fold: svg('<rect x="3.5" y="4" width="17" height="5" rx="1.5"/><path d="M6.5 14.5h11M6.5 17.5h8"/><rect x="3.5" y="11" width="17" height="9" rx="1.5"/>'),
     table: svg('<rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M3.5 10h17M3.5 14.5h17M10 10v9"/>'),
   };
 

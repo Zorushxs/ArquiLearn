@@ -53,6 +53,19 @@ eq(Temari.topics(pages), ['2 Principis', '10 Arquitectura', 'Patrons', 'Patrons/
 eq(Temari.crumbs('Patrons/Comportament/Observer.md'), [
   { name: 'Patrons', path: 'Patrons' }, { name: 'Comportament', path: 'Patrons/Comportament' }], 'molles de pa');
 
+// ---------- Cerca ----------
+const titles = list => list.map(p => p.title);
+eq(titles(Temari.filter(pages, '')), titles(pages), 'sense cerca → totes');
+eq(titles(Temari.filter(pages, 'STRAT')), ['Strategy'], 'sense fer cas de majúscules');
+eq(titles(Temari.filter(pages, 'patrons')), ['Strategy', 'Observer', 'Builder'], 'pel nom del tema');
+eq(titles(Temari.filter(pages, 'comportament obs')), ['Observer'], 'totes les paraules (tema + títol)');
+eq(titles(Temari.filter(pages, 'principis')), ['SOLID'], 'el número d\'ordre del tema no hi compta');
+eq(titles(Temari.filter([{ path: 'a/Què és.md', title: 'Què és un patró' }], 'que es patro')), ['Què és un patró'], 'sense accents');
+eq(titles(Temari.filter(pages, 'xyz')), [], 'res → llista buida');
+eq(Temari.count(Temari.tree(pages).topics[2]), 3, 'pàgines d\'un tema amb els subtemes');
+ok(Temari.inside({ path: 'Patrons' }, 'Patrons/Comportament/Observer.md'), 'pàgina dins d\'un tema');
+ok(!Temari.inside({ path: 'Patrons' }, 'Patrons de disseny/x.md'), 'un tema amb un nom que comença igual no compta');
+
 // ---------- Format ----------
 // Aplica un canvi i torna el text, amb [ ] on queda la selecció.
 function applied(text, start, end, fn, ...args) {
