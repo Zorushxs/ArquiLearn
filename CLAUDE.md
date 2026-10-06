@@ -14,7 +14,7 @@ Llibreta d'aprenentatge (programació, patrons de disseny, arquitectura) feta co
 ## Tecnologia i convencions (les mateixes que KanjiApp)
 
 - Mòbil primer, tema clar i fosc amb variables CSS. Interfície només en català (no hi ha i18n). Comentaris del codi en català.
-- **Cada canvi d'un CSS o JS apuja `?v=N`** a totes les referències d'[index.html](index.html) amb `node tools/versio.js` (ara és `?v=5`). Si no, GitHub Pages serveix els fitxers vells. El contingut (`llibreta/`) es llegeix sense memòria cau i no ho necessita.
+- **Cada canvi d'un CSS o JS apuja `?v=N`** a totes les referències d'[index.html](index.html) amb `node tools/versio.js` (ara és `?v=8`). Si no, GitHub Pages serveix els fitxers vells. El contingut (`llibreta/`) es llegeix sense memòria cau i no ho necessita.
 - Són scripts clàssics, cadascun amb un IIFE que exposa un objecte global, en aquest ordre (el d'index.html): `Prefs`, `U` (util), `Temari`, `Format`, `Carpeta`, `Render`, `Arbre`, `Pagina`, `Editor`, `Nova`, `App`. Els `const` globals no són a `window` (des d'un altre frame: `win.eval('Render')`).
 - **On va cada cosa**:
   - [js/temari.js](js/temari.js) `Temari`: regles sense DOM (rutes, noms, títols, arbre). Es pot provar amb node.
